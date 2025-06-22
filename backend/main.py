@@ -11,9 +11,9 @@ app = FastAPI(title="URL Searcher API", version="1.0.0")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
-    allow_credentials=True,
-    allow_methods=["*"],
+    allow_origins=["*"],  # 開発環境では全許可
+    allow_credentials=False,  # credentials使用時は*を避ける
+    allow_methods=["GET", "POST", "OPTIONS"],
     allow_headers=["*"],
 )
 
@@ -33,6 +33,16 @@ class SearchResult(BaseModel):
 @app.get("/")
 async def root():
     return {"message": "URL Searcher API"}
+
+@app.options("/search")
+async def options_search():
+    """Handle CORS preflight requests"""
+    from fastapi import Response
+    response = Response()
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    response.headers["Access-Control-Allow-Methods"] = "POST, OPTIONS"
+    response.headers["Access-Control-Allow-Headers"] = "Content-Type"
+    return response
 
 async def run_crawler(url: str, depth: int = 1, selectors: List[str] = None) -> List[dict]:
     """Run the Puppeteer crawler and return results"""
