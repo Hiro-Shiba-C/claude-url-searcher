@@ -1,0 +1,19 @@
+{
+  "name": "claude-url-searcher",
+  "version": "1.0.0",
+  "description": "URL searcher with Next.js frontend and FastAPI backend",
+  "scripts": {
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:backend": "cd backend && source venv/bin/activate && uvicorn main:app --reload --host 0.0.0.0 --port 8000",
+    "build:frontend": "cd frontend && npm run build",
+    "start:frontend": "cd frontend && npm start",
+    "install:all": "cd frontend && npm install && cd ../backend && pip install -r requirements.txt && cd crawler && npm install",
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\""
+  },
+  "keywords": ["url-searcher", "web-crawler", "nextjs", "fastapi", "puppeteer"],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.0"
+  }
+}
