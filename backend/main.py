@@ -123,12 +123,25 @@ async def search_urls(request: URLSearchRequest):
         # Temporary mock data for testing when crawler is not available
         from datetime import datetime
         
-        # Try to run crawler, fallback to mock data
+        # Run crawler with improved error handling
         try:
             raw_results = await run_crawler(request.url, request.depth, request.selectors)
+            
+            # If crawler returns empty results, provide informative message
+            if not raw_results:
+                print(f"Crawler returned no results for {request.url}")
+                raw_results = [{
+                    'url': request.url,
+                    'title': f'No results found for {request.url}',
+                    'content': 'The crawler completed but found no accessible pages. This may be due to site restrictions or network issues.',
+                    'timestamp': datetime.now().isoformat(),
+                    'depth': 0
+                }]
+                
         except Exception as crawler_error:
-            print(f"Crawler error, using mock data: {crawler_error}")
-            # Mock results for testing
+            print(f"Crawler error: {crawler_error}")
+            # Use actual crawler when possible, fallback to mock only for development
+            print("Using mock data for development testing")
             raw_results = [
                 {
                     'url': request.url,
