@@ -9,7 +9,8 @@ class URLCrawler {
     }
 
     async init() {
-        this.browser = await puppeteer.launch({
+        // WSL環境用のPuppeteerオプション最適化
+        const launchOptions = {
             headless: 'new',
             args: [
                 '--no-sandbox', 
@@ -18,9 +19,35 @@ class URLCrawler {
                 '--disable-gpu',
                 '--no-first-run',
                 '--no-default-browser-check',
-                '--disable-default-apps'
+                '--disable-default-apps',
+                '--disable-background-networking',
+                '--disable-background-timer-throttling',
+                '--disable-backgrounding-occluded-windows',
+                '--disable-renderer-backgrounding',
+                '--disable-features=TranslateUI',
+                '--disable-ipc-flooding-protection',
+                '--enable-logging',
+                '--log-level=0',
+                '--single-process',
+                '--no-zygote'
             ]
-        });
+        };
+
+        // WSL環境でのexecutablePath設定を試行
+        try {
+            this.browser = await puppeteer.launch(launchOptions);
+        } catch (error) {
+            console.log('Default launch failed, trying with system Chrome...', error.message);
+            
+            // システムのChromiumを使用
+            launchOptions.executablePath = '/usr/bin/chromium-browser';
+            try {
+                this.browser = await puppeteer.launch(launchOptions);
+            } catch (systemError) {
+                console.error('Both Chrome options failed:', systemError.message);
+                throw new Error('Puppeteer initialization failed. Please check Chrome installation.');
+            }
+        }
     }
 
     extractBaseDomain(url) {
